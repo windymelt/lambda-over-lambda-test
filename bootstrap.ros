@@ -5,6 +5,7 @@ exec ros -Q -- $0 "$@"
 |#
 (progn ;;init forms
   (ros:ensure-asdf)
+  (delete :ipv6 *features*) ;; ccl
   #+quicklisp (ql:quickload '(:dexador :uiop) :silent nil)
   )
 
