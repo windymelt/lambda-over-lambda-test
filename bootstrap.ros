@@ -29,7 +29,7 @@ exec ros -Q -- $0 "$@"
   (let ((next-endpoint
           (format nil "http://~A/2018-06-01/runtime/invocation/next" *aws-lambda-runtime-api*)))
     (loop for (body status headers . nil) = (multiple-value-list (dex:get next-endpoint))
-          as request-id = (gethash "Lambda-Runtime-Aws-Request-Id" headers)
+          as request-id = (gethash "lambda-runtime-aws-request-id" headers)
           as response = "Hello, Lambda World from Yet Another Lambda World!"
           as response-endpoint = (format nil "http://~A/2018-06-01/runtime/invocation/~A/response" *aws-lambda-runtime-api* request-id)
           do (dex:post response-endpoint :content response))))
