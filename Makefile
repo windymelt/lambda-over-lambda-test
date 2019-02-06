@@ -1,15 +1,18 @@
-.PHONY: default
+.PHONY: default distclean
 
 default: out.zip
 
-libcrypto.so.1.0.0: /lib64/libcrypto.so.1.0.0
-	cp /lib64/libcrypto.so.1.0.0 .
+distclean:
+	-rm out.zip bootstrap libcrypt-2.26.so libssl3.so
 
-libssl.so.1.0.0: /lib64/libssl.so.1.0.0
-	cp /lib64/libssl.so.1.0.0 .
+libcrypt-2.26.so:
+	docker-compose run --rm cl cp /lib64/$@ /app/
 
-out.zip: bootstrap libcrypto.so.1.0.0 libssl.so.1.0.0
-	zip out.zip bootstrap libcrypto.so.1.0.0 libssl.so.1.0.0
+libssl3.so:
+	docker-compose run --rm cl cp /lib64/$@ /app/
+
+out.zip: bootstrap libcrypt-2.26.so libssl3.so
+	zip out.zip $^
 
 bootstrap: bootstrap.ros
-	ros build bootstrap.ros
+	docker-compose run --rm cl ros build $< --bundle-shared-object

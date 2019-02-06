@@ -1,0 +1,8 @@
+version: '3'
+services:
+  cl:
+    container_name: cl
+    build: .
+    volumes:
+      - .:/app
+    command: sh
