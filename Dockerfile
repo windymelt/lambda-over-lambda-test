@@ -1,4 +1,5 @@
-FROM amazonlinux
+FROM amazonlinux:"2017.03.1.20170812"
+        # latest lambda environment
 
 ENV libs 'automake make gcc curl curl-devel bzip2 tar gzip'
 RUN yum update -y \
