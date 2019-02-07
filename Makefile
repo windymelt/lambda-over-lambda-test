@@ -1,4 +1,4 @@
-.PHONY: default distclean
+.PHONY: default distclean build
 
 OUT = out.zip
 LIBCRYPTO = libcrypto.so.1.0.0
@@ -21,3 +21,9 @@ $(OUT): bootstrap $(LIBCRYPTO) $(LIBSSL)
 
 bootstrap: bootstrap.ros
 	docker-compose run --rm cl ros build $<
+
+build: temporary.ros $(LIBCRPTO) $(LIBSSL)
+	docker-compose run --rm cl ros build temporary.ros
+	#	-rm temporary.ros
+	mv temporary bootstrap
+	zip out.zip --symlinks bootstrap $(LIBCRYPTO) $(LIBSSL)
