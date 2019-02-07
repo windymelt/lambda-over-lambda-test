@@ -5,4 +5,5 @@ services:
     build: .
     volumes:
       - .:/app
+      - /tmp:/tmp/lol
     command: sh
