@@ -17,7 +17,7 @@ exec ros -Q -- $0 "$@"
 (uiop:chdir *command-dir*)
 
 (djula:add-template-directory (uiop:merge-pathnames* "templates/" *command-dir*))
-(defconstant *template* (djula:compile-template* "template.ros"))
+(defconstant +template+ (djula:compile-template* "template.ros"))
 (defvar *ros-file*)
 
 (defun file-get-contents (filename)
@@ -47,7 +47,7 @@ exec ros -Q -- $0 "$@"
   (let* ((contents (file-get-contents *ros-file*))
          (ros-package (get-ros-package contents)))
     (with-open-file (s (uiop:merge-pathnames* #P"temporary.ros" *command-dir*) :direction :output)
-      (djula:render-template* *template* s :body (swap-main (delete-shebang contents)) :ros-package (string-upcase ros-package)))
+      (djula:render-template* +template+ s :body (swap-main (delete-shebang contents)) :ros-package (string-upcase ros-package)))
     (uiop:run-program (format nil "make -f ~A build" (uiop:merge-pathnames* "Makefile" *command-dir*)) :output *standard-output* :error-output *error-output*)
     (uiop:rename-file-overwriting-target (uiop:merge-pathnames* "out.zip" *command-dir*) (uiop:merge-pathnames* "out.zip" *default-pathname-defaults*)))
   )
