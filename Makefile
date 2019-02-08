@@ -24,6 +24,6 @@ bootstrap: bootstrap.ros
 
 build: temporary.ros $(LIBCRPTO) $(LIBSSL)
 	docker-compose run --rm cl ros build temporary.ros
-	#	-rm temporary.ros
+	-rm temporary.ros
 	mv temporary bootstrap
 	zip out.zip --symlinks bootstrap $(LIBCRYPTO) $(LIBSSL)
