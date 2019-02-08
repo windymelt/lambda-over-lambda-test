@@ -12,7 +12,11 @@ exec ros -Q -- $0 "$@"
   (:use :cl))
 (in-package :ros.script.lambda-over-lambda.3758533090)
 
-(djula:add-template-directory (merge-pathnames "templates/"))
+;; cd `dirname $0`
+(defparameter *command-dir* (make-pathname :defaults *load-pathname* :name nil :type nil))
+(uiop:chdir *command-dir*)
+
+(djula:add-template-directory (uiop:merge-pathnames* "templates/" *command-dir*))
 (defconstant *template* (djula:compile-template* "template.ros"))
 (defvar *ros-file*)
 
@@ -36,14 +40,15 @@ exec ros -Q -- $0 "$@"
 
 (defun main (&rest argv)
   (declare (ignorable argv))
+  (uiop:chdir *command-dir*)
   (setf *ros-file* (elt argv 0))
-                                        ; todo: cclでなければ死ぬようにする
-                                        ; rosファイルを変換して中間rosファイルを生成する
-                                        ; 渡されるrosファイルは，第一引数にhandler，第二引数にcontentが入って渡されるという想定
+  ;; rosファイルを変換して中間rosファイルを生成する
+  ;; 渡されるrosファイルは，第一引数にhandler，第二引数にcontentが入って渡されるという想定
   (let* ((contents (file-get-contents *ros-file*))
          (ros-package (get-ros-package contents)))
-    (with-open-file (s #P"temporary.ros" :direction :output)
+    (with-open-file (s (uiop:merge-pathnames* #P"temporary.ros" *command-dir*) :direction :output)
       (djula:render-template* *template* s :body (swap-main (delete-shebang contents)) :ros-package (string-upcase ros-package)))
-    (uiop:run-program (format nil "make -f ~A build" (merge-pathnames "Makefile")) :output *standard-output* :error-output *error-output*))
+    (uiop:run-program (format nil "make -f ~A build" (uiop:merge-pathnames* "Makefile" *command-dir*)) :output *standard-output* :error-output *error-output*)
+    (uiop:rename-file-overwriting-target (uiop:merge-pathnames* "out.zip" *command-dir*) (uiop:merge-pathnames* "out.zip" *default-pathname-defaults*)))
   )
 ;;; vim: set ft=lisp lisp:
