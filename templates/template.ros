@@ -34,10 +34,10 @@ exec ros -Q -- $0 "$@"
         (uiop:getenv "AWS_LAMBDA_RUNTIME_API")))
 
 (defun set-json-settings ()
-  (setf jsown:*parsed-true-value* t)
-  (setf jsown:*parsed-false-value* :f)
-  (setf jsown:*parsed-null-value :null)
-  (setf jsown:*parsed-empty-list-value* nil))
+  (setf jsown::*parsed-true-value* t)
+  (setf jsown::*parsed-false-value* :f)
+  (setf jsown::*parsed-null-value* :null)
+  (setf jsown::*parsed-empty-list-value* nil))
 
 (defun main-loop (handler)
   "Main loop processes lambda requests. Specify function designator with HANDLER."
