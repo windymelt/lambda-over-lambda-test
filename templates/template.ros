@@ -12,8 +12,8 @@ exec ros -Q -- $0 "$@"
 (progn ;;init forms
   (declaim (optimize (speed 0) (space 0) (debug 3) (safety 3)))
   (ros:ensure-asdf)
-  (setf *features* (delete :ipv6 *features*)) ;; ccl
-  #+quicklisp (ql:quickload '(:dexador :uiop :cl-ppcre :jsown) :silent nil)
+  (setf *features* (remove :ipv6 *features*)) ;; ccl
+  #+quicklisp (ql:quickload '(:dexador :uiop :cl-ppcre :jsown :cl+ssl) :silent nil)
   )
 
 (defpackage :ros.script.bootstrap.3758360166
@@ -44,16 +44,21 @@ exec ros -Q -- $0 "$@"
   (declare (ignorable handler))
   (let ((next-endpoint
           (format nil "http://~A/2018-06-01/runtime/invocation/next" *aws-lambda-runtime-api*)))
-    (loop for (body status headers . nil) = (multiple-value-list (dex:get next-endpoint))
+    (loop for (body status headers . nil) = (progn (multiple-value-list (dex:get next-endpoint :keep-alive t :verbose t)))
           as request-id = (gethash "lambda-runtime-aws-request-id" headers)
-          as response = (funcall (find-symbol "ORIGINAL-MAIN" "{{ros-package}}") handler (jsown:parse body))
+          as response = (handler-case (funcall (find-symbol "ORIGINAL-MAIN" "{{ros-package}}") handler (jsown:parse body))
+                          (error (c) `(:obj ("error" . ,(format nil "~A" c)))))
           as response-endpoint = (format nil "http://~A/2018-06-01/runtime/invocation/~A/response" *aws-lambda-runtime-api* request-id)
-          do (dex:post response-endpoint :content (jsown:to-json response)))))
+          as error-endpoint = (format nil "http://~A/2018-06-01/runtime/invocation/~A/error" *aws-lambda-runtime-api* request-id)
+;; TODO: エラーハンドリングして処理を継続できるようにする，エラーは無視する
+          do (dex:post response-endpoint :content (jsown:to-json response) :keep-alive t :verbose t))))
 
 ;; lambda entrypoint
 (defun main ()
   (load-envvar)
   (set-json-settings)
   (uiop:chdir *lambda-task-root*)
+;  (cl+ssl:reload)
+  (setf *standard-output* *error-output*)
   (main-loop *handler*))
 ;;; vim: set ft=lisp lisp:
