@@ -7,7 +7,8 @@ FROM eshamster/cl-base
 RUN ros install ccl-bin/1.11
 RUN ros use ccl-bin/1.11
 
-# Assuming whole application directory is mounted as /app
-WORKDIR /app/
+# Assuming whole application directory is mounted as /var/task
+RUN mkdir /var/task
+WORKDIR /var/task
 
 CMD /bin/sh

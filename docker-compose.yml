@@ -4,6 +4,6 @@ services:
     container_name: cl
     build: .
     volumes:
-      - .:/app
+      - .:/var/task
       - /tmp:/tmp/lol
     command: sh
