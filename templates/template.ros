@@ -4,6 +4,7 @@
 exec ros -Q -- $0 "$@"
 |#
 
+(setf *features* (delete :ipv6 *features*)) ;; ccl
 
 ;;; ここに本来のrosファイルが挿入される
 ;;; shebangだけ削除しておく
